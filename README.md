@@ -96,6 +96,3 @@ curl -s -X POST $B/admin/coupons                                    # 409 until 
 curl -s $B/admin/reports/summary
 ```
 Redeem: `-d '{"coupon_code":"RWD-XXXXXXXXXXXX"}'` (case-insensitive).
-
-## Time spent
-To be stated by the submitter (the brief asks for an approximate figure). AI usage is described in `DECISIONS.md`.
