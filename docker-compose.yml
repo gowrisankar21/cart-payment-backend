@@ -1,0 +1,48 @@
+services:
+  db:
+    image: postgres:16.4-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-checkout}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-checkout_local_pw}
+      POSTGRES_DB: ${POSTGRES_DB:-checkout}
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
+
+  api:
+    build: .
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      # Service-to-service networking: the hostname is the compose service name.
+      DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-checkout}:${POSTGRES_PASSWORD:-checkout_local_pw}@db:5432/${POSTGRES_DB:-checkout}
+      DB_POOL_SIZE: ${DB_POOL_SIZE:-10}
+      DB_MAX_OVERFLOW: ${DB_MAX_OVERFLOW:-10}
+      DB_POOL_TIMEOUT_SECONDS: ${DB_POOL_TIMEOUT_SECONDS:-10}
+      DB_LOCK_TIMEOUT_MS: ${DB_LOCK_TIMEOUT_MS:-5000}
+      DB_STATEMENT_TIMEOUT_MS: ${DB_STATEMENT_TIMEOUT_MS:-15000}
+      REWARD_EVERY_N_ORDERS: ${REWARD_EVERY_N_ORDERS:-5}
+      REWARD_DISCOUNT_PERCENT: ${REWARD_DISCOUNT_PERCENT:-10}
+      MAX_LINE_QUANTITY: ${MAX_LINE_QUANTITY:-100}
+      MAX_CART_ITEMS: ${MAX_CART_ITEMS:-50}
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+    ports:
+      - "${API_PORT:-8000}:8000"
+    healthcheck:
+      test: ["CMD", "python", "-m", "app.healthcheck"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    stop_grace_period: 20s
+    restart: unless-stopped
+
+volumes:
+  pgdata:
