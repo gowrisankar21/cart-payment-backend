@@ -1,7 +1,7 @@
 # DECISIONS
 
 Scope: backend only (no frontend). Stack: Python 3.12, FastAPI, PostgreSQL 16, SQLAlchemy 2, Alembic, Pytest.
-Money is integer cents (USD). Setup, API reference and commands are in [`SETUP.md`](SETUP.md).
+Money is integer cents (USD). Setup, API reference and commands are in [`README.md`](README.md).
 
 ## 1. System invariants and where they are enforced
 
@@ -103,11 +103,11 @@ Production code calls `hooks.checkpoint(name)` at a few points inside the checko
 Integer cents, USD. Discount `(gross*pct + 50) // 100` (half-up), applied once to the order gross. Examples: 1005 @10% → 101, 5 @10% → 1, 1 @10% → 0. 100% coupon → net 0. Unit tests cover boundaries.
 
 ## 5. Error model
-See the decision above and the table in [`SETUP.md`](SETUP.md). Distinguished conditions: validation, missing resources, insufficient stock, closed cart, coupon conflicts, idempotency conflicts, transient contention (503), pool exhaustion (503 `SERVICE_BUSY`), unexpected failure (500).
+See the decision above and the table in [`README.md`](README.md). Distinguished conditions: validation, missing resources, insufficient stock, closed cart, coupon conflicts, idempotency conflicts, transient contention (503), pool exhaustion (503 `SERVICE_BUSY`), unexpected failure (500).
 
 ## 6. Implemented versus deferred
 
-**Implemented:** carts and items, checkout with idempotency, coupons (generate/redeem), report, order and coupon lists, migrations and seed, Docker Compose with health checks, structured JSON logs with request IDs, readiness probe, bounded pool and lock/statement timeouts, graceful pool disposal on shutdown, real-PostgreSQL tests (see SETUP.md for the current count).
+**Implemented:** carts and items, checkout with idempotency, coupons (generate/redeem), report, order and coupon lists, migrations and seed, Docker Compose with health checks, structured JSON logs with request IDs, readiness probe, bounded pool and lock/statement timeouts, graceful pool disposal on shutdown, real-PostgreSQL tests (see README.md for the current count).
 
 **Deferred (honestly not done):**
 * Authentication and authorisation. `/admin/*` is **unprotected** and must be gated before any real deployment.
